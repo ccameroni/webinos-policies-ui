@@ -2,6 +2,19 @@
 
 var mocked = {};
 
+webinos.discovery.findServices(new ServiceType('http://webinos.org/core/policymanagement'), {
+    onFound: function(service) {
+        policyeditor = service;
+        policyeditor.bindService({
+            onBind: function(service) {
+                policyeditor.getPolicySet(0, function(ps) {
+                    console.log(JSON.stringify(ps.toJSONObject()));
+                }, null);
+            }
+        });
+    }
+});
+
 mocked.quickSettings = [{
 	name: "Incognito",
 	enabled: true
