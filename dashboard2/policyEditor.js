@@ -1,6 +1,85 @@
 /* MOCKS */
 
 var mocked = {};
+var policy = {};
+
+function quickSettings(policy) {
+    var ownerPolicy;
+
+    for (var i = 0; i < policy.policy.length; i++) {
+        if (policy.policy[i].$.id == "owner-policy") {
+            ownerPolicy = policy.policy[i];
+        }
+    }
+
+    for (var i = 0; i < ownerPolicy.rule.length; i++) {
+        if (ownerPolicy.rule[i].$.effect == "deny") {
+            console.log(JSON.stringify(ownerPolicy.rule[i]));
+            for (var j = 0; j < ownerPolicy.rule[i].condition[0]["resource-match"].length; j++) {
+                if (ownerPolicy.rule[i].condition[0]["resource-match"][j].$.match == "http://webinos.org/feature/incognito") {
+                    for (var k = 0; k < mocked.quickSettings.length; k++) {
+                        if (mocked.quickSettings[k].name == "Incognito") {
+                            mocked.quickSettings[k].enabled = false
+                        }
+                    }
+                }
+                if (ownerPolicy.rule[i].condition[0]["resource-match"][j].$.match == "http://webinos.org/feature/internet") {
+                    for (var k = 0; k < mocked.quickSettings.length; k++) {
+                        if (mocked.quickSettings[k].name == "Internet") {
+                            mocked.quickSettings[k].enabled = false
+                        }
+                    }
+                    for (var k = 0; k < mocked.quickStatus.length; k++) {
+                        if (mocked.quickStatus[k].name == "Internet") {
+                            mocked.quickStatus[k].status = false
+                        }
+                    }
+                }
+                if (ownerPolicy.rule[i].condition[0]["resource-match"][j].$.match == "http://webinos.org/api/discovery") {
+                    for (var k = 0; k < mocked.quickSettings.length; k++) {
+                        if (mocked.quickSettings[k].name == "Local Discovery") {
+                            mocked.quickSettings[k].enabled = false
+                        }
+                    }
+                }
+                if (ownerPolicy.rule[i].condition[0]["resource-match"][j].$.match == "http://webinos.org/api/w3c/geolocation") {
+                    for (var k = 0; k < mocked.quickSettings.length; k++) {
+                        if (mocked.quickSettings[k].name == "Location") {
+                            mocked.quickSettings[k].enabled = false
+                        }
+                    }
+                    for (var k = 0; k < mocked.quickStatus.length; k++) {
+                        if (mocked.quickStatus[k].name == "GPS") {
+                            mocked.quickStatus[k].status = false
+                        }
+                    }
+                }
+                if (ownerPolicy.rule[i].condition[0]["resource-match"][j].$.match == "http://webinos.org/api/payment") {
+                    for (var k = 0; k < mocked.quickSettings.length; k++) {
+                        if (mocked.quickSettings[k].name == "Payment") {
+                            mocked.quickSettings[k].enabled = false
+                        }
+                    }
+                }
+                if (ownerPolicy.rule[i].condition[0]["resource-match"][j].$.match == "http://webinos.org/feature/people") {
+                    for (var k = 0; k < mocked.quickSettings.length; k++) {
+                        if (mocked.quickSettings[k].name == "People") {
+                            mocked.quickSettings[k].enabled = false
+                        }
+                    }
+                }
+                if (ownerPolicy.rule[i].condition[0]["resource-match"][j].$.match == "http://webinos.org/api/messaging") {
+                    for (var k = 0; k < mocked.quickSettings.length; k++) {
+                        if (mocked.quickSettings[k].name == "SMS & Telephony") {
+                            mocked.quickSettings[k].enbaled = false
+                        }
+                    }
+                }
+            }
+        }
+    }
+    setQuickSettings();
+};
 
 webinos.discovery.findServices(new ServiceType('http://webinos.org/core/policymanagement'), {
     onFound: function(service) {
@@ -8,7 +87,9 @@ webinos.discovery.findServices(new ServiceType('http://webinos.org/core/policyma
         policyeditor.bindService({
             onBind: function(service) {
                 policyeditor.getPolicySet(0, function(ps) {
-                    console.log(JSON.stringify(ps.toJSONObject()));
+                    policy = ps.toJSONObject()
+                    console.log(JSON.stringify(policy));
+                    quickSettings(policy);
                 }, null);
             }
         });
@@ -20,7 +101,7 @@ mocked.quickSettings = [{
 	enabled: true
 }, {
 	name: "Internet",
-	enabled: false
+	enabled: true
 }, {
 	name: "Local Discovery",
 	enabled: true
@@ -29,19 +110,19 @@ mocked.quickSettings = [{
 	enabled: true
 }, {
 	name: "Payment",
-	enabled: false
+	enabled: true
 }, {
 	name: "People",
 	enabled: true
 }, {
 	name: "SMS & Telephony",
-	enabled: false
+	enabled: true
 }];
 
 
 mocked.quickStatus = [{
 	name: "Internet",
-	status: false
+	status: true
 }, {
 	name: "GPS",
 	status: true
@@ -360,7 +441,7 @@ function dragDropInitColumns() {
 }*/
 
 
-var drawQuickSettings = function() {
+function setQuickSettings() {
 	var quickSettingsSwitchesContainer = document.getElementById('quickSettings-switches-content'),
 		quickSettingsStatusContainer = document.getElementById('quickSettings-status-content'),
 		html = '',
@@ -409,7 +490,8 @@ var drawQuickSettings = function() {
 	}
 
 	quickSettingsStatusContainer.innerHTML = html;
-}();
+};
+var drawQuickSettings = setQuickSettings;
 
 
 var drawStoreList = function() {
