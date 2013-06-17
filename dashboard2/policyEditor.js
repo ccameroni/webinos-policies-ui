@@ -78,8 +78,38 @@ function quickSettings(policy) {
             }
         }
     }
-    setQuickSettings();
+    drawQuickSettings();
 };
+
+function people (policy) {
+    var addToList;
+
+    for (var i = 0; i < policy.policy.length; i++) {
+        if (policy.policy[i].target) {
+            for (var j = 0; j < policy.policy[i].target[0].subject[0]["subject-match"].length; j++) {
+                if (policy.policy[i].target[0].subject[0]["subject-match"][j].$.attr == "user-id") {
+                    addToList = true;
+                    for (var k = 0; k < mocked.people.length; k++) {
+                        if (mocked.people[k].name === policy.policy[i].target[0].subject[0]["subject-match"][j].$.match) {
+                            addToList = false;
+                            break;
+                        }
+                    }
+                    if (addToList == true) {
+                        var people = {};
+                        people.id = mocked.people.length + 1;
+                        people.name = policy.policy[i].target[0].subject[0]["subject-match"][j].$.match;
+                        people.email = people.name + "@webinos.org";
+                        people.img = "placeholder.png";
+                        people.lastAccess = 0000000000000;
+                        mocked.people.push(people);
+                    }
+                }
+            }
+        }
+    }
+    drawPeopleList();
+}
 
 webinos.discovery.findServices(new ServiceType('http://webinos.org/core/policymanagement'), {
     onFound: function(service) {
@@ -90,6 +120,7 @@ webinos.discovery.findServices(new ServiceType('http://webinos.org/core/policyma
                     policy = ps.toJSONObject()
                     console.log(JSON.stringify(policy));
                     quickSettings(policy);
+                    people(policy);
                 }, null);
             }
         });
@@ -138,7 +169,9 @@ mocked.stores = [{
 }];
 
 
-mocked.people = [{
+mocked.people = [];
+
+/*mocked.people = [{
 	id: 1,
 	name: "Tardar Sauce",
 	email: "grumpy@nonexistent.com",
@@ -150,7 +183,7 @@ mocked.people = [{
 	email: "pokey@nonexistent.com",
 	img: "person2.png",
 	lastAccess: 1354421200428
-}];
+}];*/
 
 mocked.profiles = [{
 	id: 1,
@@ -325,13 +358,13 @@ var generateMockedData = function(arrayObjectName, quantity) {
 				name: "lorem.ipsum"+(i+1)+".com",
 				allow: !!(Math.floor(Math.random()*2))
 			});
-		} else if(arrayObjectName == 'people') {
+		} /*else if(arrayObjectName == 'people') {
 			destArr.push({
 				name: "Loremford Ipsumov "+(i+1),
 				email: "lorips"+(i+1)+"@nonexistent.com",
 				lastAccess: 1341732300428-(123456789*i)
 			});
-		}
+		}*/
 	}
 }
 
@@ -441,7 +474,7 @@ function dragDropInitColumns() {
 }*/
 
 
-function setQuickSettings() {
+function drawQuickSettings() {
 	var quickSettingsSwitchesContainer = document.getElementById('quickSettings-switches-content'),
 		quickSettingsStatusContainer = document.getElementById('quickSettings-status-content'),
 		html = '',
@@ -491,7 +524,7 @@ function setQuickSettings() {
 
 	quickSettingsStatusContainer.innerHTML = html;
 };
-var drawQuickSettings = setQuickSettings;
+//var drawQuickSettings = setQuickSettings;
 
 
 var drawStoreList = function() {
@@ -520,7 +553,7 @@ var drawStoreList = function() {
 	drawPermissionButtons('unk-loc-per-con', [{n:"Allow",c:"allow"}, {n:"Allow once",c:"prompt"}, {n:"Deny",c:"deny"}], 1);
 }();
 
-var drawPeopleList = function() {
+function drawPeopleList() {
 	var peopleListContainer = document.getElementById('people-list'),
 		html = '',
 		people = appData.people || [],
@@ -550,7 +583,7 @@ var drawPeopleList = function() {
 	}
 
 	peopleListContainer.innerHTML = html;
-}();
+};
 
 
 // list.js
