@@ -275,7 +275,6 @@ function drawQuickSettings() {
 
 	quickSettingsStatusContainer.innerHTML = html;
 };
-//var drawQuickSettings = setQuickSettings;
 
 
 var drawStoreList = function() {
@@ -346,6 +345,8 @@ var drawPeopleList = function() {
     // end of list.js
 };
 
+var filledServicesSelection = false;
+
 function drawPlaces() {
 	var profiles = appData.profiles || [],
 		people = appData.people || [];
@@ -371,7 +372,10 @@ function drawPlaces() {
 	}
 
 	fillOptionsFromArray(domObjs.popupAddPermissionApp, appData.applications);
-	fillOptionsFromArray(domObjs.popupAddPermissionType, appData.services); //also needed for "app" tab
+    if (filledServicesSelection == false) {
+        filledServicesSelection = true;
+        fillOptionsFromArray(domObjs.popupAddPermissionType, appData.services); //also needed for "app" tab
+    }
 };
 
 var drawApps = function() {
@@ -398,7 +402,10 @@ var drawApps = function() {
 		drawDraggablePermissions('appsPolicies');
 	}
 
-	//fillOptionsFromArray(domObjs.popupAddPermissionType, appData.services);
+    if (filledServicesSelection == false) {
+        filledServicesSelection = true;
+	    fillOptionsFromArray(domObjs.popupAddPermissionType, appData.services);
+    }
 };
 
 function createProfileList(profiles, container, tab) {
