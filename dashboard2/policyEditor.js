@@ -1,248 +1,6 @@
-/* MOCKS */
+var appData = {};
+var policyeditor;
 
-var mocked = {};
-var policy = {};
-
-function quickSettings(policy) {
-    var ownerPolicy;
-
-    for (var i = 0; i < policy.policy.length; i++) {
-        if (policy.policy[i].$.id == "discovery") {
-            ownerPolicy = policy.policy[i];
-        }
-    }
-
-    for (var i = 0; i < ownerPolicy.rule.length; i++) {
-        if (ownerPolicy.rule[i].$.effect == "deny") {
-            // inizio resource match
-            if (ownerPolicy.rule[i].condition[0].$.combine == "and") {
-                for (var j = 0; j < ownerPolicy.rule[i].condition[0]["resource-match"].length; j++) {
-                    if (ownerPolicy.rule[i].condition[0]["resource-match"][j].$.attr == "api-feature" &&
-                        ownerPolicy.rule[i].condition[0]["resource-match"][j].$.match == "http://webinos.org/discovery") {
-                        continue;
-                    }
-                    if (ownerPolicy.rule[i].condition[0]["resource-match"][j].$.attr == "param:feature") {
-                        if (ownerPolicy.rule[i].condition[0]["resource-match"][j].$.match == "http://webinos.org/feature/incognito") {
-                            for (var k = 0; k < mocked.quickSettings.length; k++) {
-                                if (mocked.quickSettings[k].name == "Incognito") {
-                                    mocked.quickSettings[k].enabled = false
-                                }
-                            }
-                        }
-                        if (ownerPolicy.rule[i].condition[0]["resource-match"][j].$.match == "http://webinos.org/feature/internet") {
-                            for (var k = 0; k < mocked.quickSettings.length; k++) {
-                                if (mocked.quickSettings[k].name == "Internet") {
-                                    mocked.quickSettings[k].enabled = false
-                                }
-                            }
-                            for (var k = 0; k < mocked.quickStatus.length; k++) {
-                                if (mocked.quickStatus[k].name == "Internet") {
-                                    mocked.quickStatus[k].status = false
-                                }
-                            }
-                        }
-                        if (ownerPolicy.rule[i].condition[0]["resource-match"][j].$.match == "http://webinos.org/api/discovery") {
-                            for (var k = 0; k < mocked.quickSettings.length; k++) {
-                                if (mocked.quickSettings[k].name == "Local Discovery") {
-                                    mocked.quickSettings[k].enabled = false
-                                }
-                            }
-                        }
-                        if (ownerPolicy.rule[i].condition[0]["resource-match"][j].$.match == "http://webinos.org/api/w3c/geolocation") {
-                            for (var k = 0; k < mocked.quickSettings.length; k++) {
-                                if (mocked.quickSettings[k].name == "Location") {
-                                    mocked.quickSettings[k].enabled = false
-                                }
-                            }
-                            for (var k = 0; k < mocked.quickStatus.length; k++) {
-                                if (mocked.quickStatus[k].name == "GPS") {
-                                    mocked.quickStatus[k].status = false
-                                }
-                            }
-                        }
-                        if (ownerPolicy.rule[i].condition[0]["resource-match"][j].$.match == "http://webinos.org/api/payment") {
-                            for (var k = 0; k < mocked.quickSettings.length; k++) {
-                                if (mocked.quickSettings[k].name == "Payment") {
-                                    mocked.quickSettings[k].enabled = false
-                                }
-                            }
-                        }
-                        if (ownerPolicy.rule[i].condition[0]["resource-match"][j].$.match == "http://webinos.org/feature/people") {
-                            for (var k = 0; k < mocked.quickSettings.length; k++) {
-                                if (mocked.quickSettings[k].name == "People") {
-                                    mocked.quickSettings[k].enabled = false
-                                }
-                            }
-                        }
-                        if (ownerPolicy.rule[i].condition[0]["resource-match"][j].$.match == "http://webinos.org/api/messaging") {
-                            for (var k = 0; k < mocked.quickSettings.length; k++) {
-                                if (mocked.quickSettings[k].name == "SMS & Telephony") {
-                                    mocked.quickSettings[k].enbaled = false
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-    drawQuickSettings();
-};
-
-function people(policy) {
-
-    for (var i = 0; i < policy.policy.length; i++) {
-        if (policy.policy[i].target) {
-            for (var j = 0; j < policy.policy[i].target[0].subject[0]["subject-match"].length; j++) {
-                if (policy.policy[i].target[0].subject[0]["subject-match"][j].$.attr == "user-id") {
-                    var addToList = true;
-                    for (var k = 0; k < mocked.people.length; k++) {
-                        if (mocked.people[k].name === policy.policy[i].target[0].subject[0]["subject-match"][j].$.match) {
-                            addToList = false;
-                            break;
-                        }
-                    }
-                    if (addToList == true) {
-                        var people = {};
-                        people.id = mocked.people.length + 1;
-                        people.name = policy.policy[i].target[0].subject[0]["subject-match"][j].$.match;
-                        people.email = people.name + "@webinos.org";
-                        people.img = "placeholder.png";
-                        people.lastAccess = 0000000000000;
-                        mocked.people.push(people);
-                    }
-                }
-            }
-        }
-    }
-    drawPeopleList();
-}
-
-function places(policy) {
-
-    for (var i = 0; i < policy.policy.length; i++) {
-        if (policy.policy[i].target) {
-            for (var j = 0; j < policy.policy[i].target[0].subject[0]["subject-match"].length; j++) {
-                if (policy.policy[i].target[0].subject[0]["subject-match"][j].$.attr == "environment") {
-                    var addToList = true;
-                    for (var k = 0; k < mocked.profiles.length; k++) {
-                        if (mocked.profiles[k].name === policy.policy[i].target[0].subject[0]["subject-match"][j].$.match) {
-                            addToList = false;
-                            break;
-                        }
-                    }
-                    if (addToList == true) {
-                        var profiles = {};
-                        profiles.id = mocked.profiles.length + 1;
-                        profiles.name = policy.policy[i].target[0].subject[0]["subject-match"][j].$.match;
-                        mocked.profiles.push(profiles);
-                    }
-                }
-                if (policy.policy[i].target[0].subject[0]["subject-match"][j].$.attr == "id") {
-                    var addToList = true;
-                    for (var k = 0; k < mocked.applications.length; k++) {
-                        if (mocked.applications[k].name === policy.policy[i].target[0].subject[0]["subject-match"][j].$.match) {
-                            addToList = false;
-                            break;
-                        }
-                    }
-                    if (addToList == true) {
-                        var applications = {};
-                        applications.id = mocked.applications.length + 1;
-                        applications.name = policy.policy[i].target[0].subject[0]["subject-match"][j].$.match;
-                        mocked.applications.push(applications);
-                    }
-                }
-            }
-        }
-        if (policy.policy[i].rule) {
-            for (var j = 0; j < policy.policy[i].rule.length; j++) {
-                if (policy.policy[i].rule[j].condition) {
-                    for (var k = 0; k < policy.policy[i].rule[j].condition[0]["resource-match"].length; k++) {
-                        //console.log(JSON.stringify(policy.policy[i].rule[j].condition[0]["resource-match"][k].$));
-                        if (policy.policy[i].rule[j].condition[0]["resource-match"][k].$.attr == "api-feature") {
-                            var addToList = true;
-                            for (var l = 0; l < mocked.services.length; l++) {
-                                if (mocked.services[l].uri === policy.policy[i].rule[j].condition[0]["resource-match"][k].$.match) {
-                                    addToList = false;
-                                    break;
-                                }
-                            }
-                            if (addToList == true) {
-                                var services = {};
-                                services.id = mocked.services.length + 1;
-                                services.uri = policy.policy[i].rule[j].condition[0]["resource-match"][k].$.match;
-                                services.name = services.uri.split('/').pop();
-                                mocked.services.push(services);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-    // skip the first policy (workaround)
-    for (var i = 1; i < policy.policy.length; i++) {
-        var permissions = {};
-        if (policy.policy[i].target && policy.policy[i].rule) {
-            permissions.id = mocked.permissions.length + 1;
-            for (var j = 0; j < policy.policy[i].target[0].subject[0]["subject-match"].length; j++) {
-                // user-id
-                if (policy.policy[i].target[0].subject[0]["subject-match"][j].$.attr == "user-id") {
-                    for (var k = 0; k < mocked.people.length; k++) {
-                        if (mocked.people[k].name === policy.policy[i].target[0].subject[0]["subject-match"][j].$.match) {
-                            permissions.personId = mocked.people[k].id;
-                            break;
-                        }
-                    }
-                }
-                // id (app id)
-                if (policy.policy[i].target[0].subject[0]["subject-match"][j].$.attr == "id") {
-                    for (var k = 0; k < mocked.applications.length; k++) {
-                        if (mocked.applications[k].name === policy.policy[i].target[0].subject[0]["subject-match"][j].$.match) {
-                            permissions.appId = mocked.applications[k].id;
-                            break;
-                        }
-                    }
-                }
-                // environment (profile)
-                if (policy.policy[i].target[0].subject[0]["subject-match"][j].$.attr == "environment") {
-                    for (var k = 0; k < mocked.profiles.length; k++) {
-                        if (mocked.profiles[k].name === policy.policy[i].target[0].subject[0]["subject-match"][j].$.match) {
-                            permissions.profileId = mocked.profiles[k].id;
-                            break;
-                        }
-                    }
-                }
-            }
-            for (var j = 0; j < policy.policy[i].rule.length; j++) {
-                // permissions
-                if (policy.policy[i].rule[j].$.effect == "permit") {
-                    permissions.perm = 1
-                }
-                if (policy.policy[i].rule[j].$.effect == "deny") {
-                    permissions.perm = -1
-                }
-                if (policy.policy[i].rule[j].condition) {
-                    for (var k = 0; k < policy.policy[i].rule[j].condition[0]["resource-match"].length; k++) {
-                        for (var l = 0; l < mocked.services.length; l++) {
-                            if (mocked.services[l].uri === policy.policy[i].rule[j].condition[0]["resource-match"][k].$.match) {
-                                permissions.serviceId = mocked.services[l].id;
-                                permissions.name = mocked.services[l].name;
-                                mocked.permissions.push(JSON.parse(JSON.stringify(permissions)));
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    drawPlaces();
-}
-
-var ps;
 
 webinos.discovery.findServices(new ServiceType('http://webinos.org/core/policymanagement'), {
     onFound: function(service) {
@@ -250,278 +8,45 @@ webinos.discovery.findServices(new ServiceType('http://webinos.org/core/policyma
         policyeditor.bindService({
             onBind: function(service) {
                 policyeditor.getPolicySet(0, function(ps) {
-                    policy = ps.toJSONObject()
-                    quickSettings(policy);
-                    people(policy);
-                    places(policy);
+                    var people, applications, profiles, services;
+
+                    var policy = ps.toJSONObject()
+                    var policyString = JSON.stringify(policy);
+                    people = getMatch(policyString, "user-id");
+                    appData.people = [];
+                    for (var i = 0; i < people.length; i++) {
+                        var p = {};
+                        p.id = i + 1;
+                        p.name = people[i];
+                        p.email = p.name + "@webinos.org";
+                        p.lastAccess = 0000000000000;
+                        appData.people.push(p);
+                    }
+                    drawPeopleList();
+
                 }, null);
             }
         });
     }
 });
 
-mocked.quickSettings = [{
-	name: "Incognito",
-	enabled: true
-}, {
-	name: "Internet",
-	enabled: true
-}, {
-	name: "Local Discovery",
-	enabled: true
-}, {
-	name: "Location",
-	enabled: true
-}, {
-	name: "Payment",
-	enabled: true
-}, {
-	name: "People",
-	enabled: true
-}, {
-	name: "SMS & Telephony",
-	enabled: true
-}];
+function getMatch(policy, string) {
+    var obj = {}, ret = [], val;
 
+    var exp = new RegExp('"' + string + '"\s*,\s*"match"\s*:\s*"([^"]*)', 'g');
+    while (val = exp.exec(policy)) {
+        obj[val[1]] = 0;
+    }
+    var exp = new RegExp('match"\s*:\s*"([^"]*)"\s*,\s*"attr"\s*:\s*"' + string + '"', 'g');
+    while (val = exp.exec(policy)) {
+        obj[val[1]] = 0;
+    }
 
-mocked.quickStatus = [{
-	name: "Internet",
-	status: true
-}, {
-	name: "GPS",
-	status: true
-}];
-
-
-mocked.stores = [{
-	name: "apps.webinos.org",
-	allow: false
-}, {
-	name: "ubiapps.com",
-	allow: true
-}];
-
-
-mocked.people = [];
-
-/*mocked.people = [{
-	id: 1,
-	name: "Tardar Sauce",
-	email: "grumpy@nonexistent.com",
-	img: "person1.png",
-	lastAccess: new Date().getTime()
-}, {
-	id: 2,
-	name: "Pokey Feline",
-	email: "pokey@nonexistent.com",
-	img: "person2.png",
-	lastAccess: 1354421200428
-}];*/
-
-
-mocked.profiles = [];
-
-/*mocked.profiles = [{
-	id: 1,
-	name: "Home"
-}, {
-	id: 2,
-	name: "Office"
-}, {
-	id: 3,
-	name: "Trip to dad's"
-}, {
-	id: 4,
-	name: "Misc"
-}];*/
-
-
-mocked.applications = [];
-
-/*mocked.applications = [{
-	id: 1,
-	name: 'Kids In Focus'
-}, {
-	id: 2,
-	name: 'Webinos Travel'
-}, {
-	id: 3,
-	name: 'Spy on your loved ones'
-}, {
-	id: 4,
-	name: 'Prodigy of Ouroboros'
-}];*/
-
-mocked.services = [];
-
-/*mocked.services = [{
-	id: 1,
-	name: 'GPS'
-}, {
-	id: 2,
-	name: 'Wifi'
-}, {
-	id: 3,
-	name: 'Photo'
-}, {
-	id: 4,
-	name: 'Video'
-}, {
-	id: 5,
-	name: 'SMS'
-}];*/
-
-mocked.permissions = [];
-
-/*mocked.permissions = [{
-	id: 0,
-	profileId: 3,
-	personId: 1,
-	name: "Navigation",
-	appId: 1,
-	serviceId: 1,
-	perm: 1 //1 allow, 0 prompt, -1 deny
-}, {
-	id: 1,
-	profileId: 3,
-	personId: 1,
-	name: "Wifi",
-	appId: 1,
-	serviceId: 2,
-	perm: 1
-}, {
-	id: 2,
-	profileId: 3,
-	personId: 1,
-	name: "Photos",
-	appId: 2,
-	serviceId: 3,
-	perm: 1
-}, {
-	id: 3,
-	profileId: 3,
-	personId: 1,
-	name: "Camera",
-	appId: 1,
-	serviceId: 4,
-	perm: 0
-}, {
-	id: 4,
-	profileId: 3,
-	personId: 1,
-	name: "GPS",
-	appId: 3,
-	serviceId: 1,
-	perm: -1
-}, {
-	id: 5,
-	profileId: 1,
-	personId: 1,
-	name: "Camera",
-	appId: 1,
-	serviceId: 4,
-	perm: 1
-}, { //2nd person
-	id: 6,
-	profileId: 1,
-	personId: 2,
-	name: "GPS",
-	appId: 3,
-	serviceId: 1,
-	perm: -1
-}, {
-	id: 7,
-	profileId: 1,
-	personId: 2,
-	name: "Wifi",
-	appId: 4,
-	serviceId: 2,
-	perm: 1
-}];*/
-
-mocked.appPermissions = [{ //APPS tab
-	id: 0,
-	personId: 1,
-	appId: 1,
-	serviceId: 1,
-	perm: 1 //1 allow, 0 prompt, -1 deny
-}, {
-	id: 1,
-	personId: 1,
-	appId: 1,
-	serviceId: 2,
-	perm: 1
-}, {
-	id: 2,
-	personId: 1,
-	appId: 2,
-	serviceId: 3,
-	perm: 1
-}, {
-	id: 3,
-	personId: 1,
-	appId: 1,
-	serviceId: 4,
-	perm: 0
-}, {
-	id: 4,
-	personId: 1,
-	appId: 3,
-	serviceId: 1,
-	perm: -1
-}, {
-	id: 5,
-	personId: 1,
-	appId: 1,
-	serviceId: 4,
-	perm: 1
-}, { //2nd person
-	id: 6,
-	personId: 2,
-	appId: 3,
-	serviceId: 1,
-	perm: -1
-}, {
-	id: 7,
-	personId: 2,
-	appId: 4,
-	serviceId: 2,
-	perm: 1
-}];
-
-//mock generator
-var generateMockedData = function(arrayObjectName, quantity) {
-	var i = 0,
-		randomnumber,
-		destArr = mocked[arrayObjectName];
-
-	for(i; i<quantity; i++) {
-		if(arrayObjectName == 'stores') {
-			destArr.push({
-				name: "lorem.ipsum"+(i+1)+".com",
-				allow: !!(Math.floor(Math.random()*2))
-			});
-		} /*else if(arrayObjectName == 'people') {
-			destArr.push({
-				name: "Loremford Ipsumov "+(i+1),
-				email: "lorips"+(i+1)+"@nonexistent.com",
-				lastAccess: 1341732300428-(123456789*i)
-			});
-		}*/
-	}
+    for (var i in obj) {
+        ret.push(i);
+    }
+    return ret;
 }
-
-// generate more mocked data
-generateMockedData('stores', 3);
-generateMockedData('people', 8);
-
-
-//------------------------->8---CUT-HERE---------------------------------------------------------
-
-
-var appData = {};
-appData = mocked; //to be changed during the integration
-
 
 function disableQuickSettingsSwitch(name) {
 	var quickSettings = appData.quickSettings,
@@ -696,7 +221,7 @@ var drawStoreList = function() {
 	drawPermissionButtons('unk-loc-per-con', [{n:"Allow",c:"allow"}, {n:"Allow once",c:"prompt"}, {n:"Deny",c:"deny"}], 1);
 }();
 
-function drawPeopleList() {
+var drawPeopleList = function() {
 	var peopleListContainer = document.getElementById('people-list'),
 		html = '',
 		people = appData.people || [],
@@ -721,7 +246,7 @@ function drawPeopleList() {
 				'<div class="email">'+ people[i].email +'</div>' +
 				'<div class="lastused">Last used your personal zone: <span>'+ getDayName(thaDate)+', '+formatAMPM(thaDate) +'</span></div>' +
 				'<div class="lastused-timestamp">'+ thaDate.getTime() +'</div>' +
-				'<div class="button">Edit permissions</div>' +
+				//'<div class="button">Edit permissions</div>' +
 			'</li>';
 	}
 
@@ -791,7 +316,7 @@ var drawApps = function() {
 	}
 
 	//fillOptionsFromArray(domObjs.popupAddPermissionType, appData.services);
-}();
+};
 
 function createProfileList(profiles, container, tab) {
 	var i = 0,
