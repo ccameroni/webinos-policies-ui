@@ -33,12 +33,23 @@ webinos.discovery.findServices(new ServiceType('http://webinos.org/core/policyma
                         appData.applications.push(p);
                     }
 
+                    // at the moment environments are not yet supported by the
+                    // policy manager, so appData.profiles should be empty
                     profiles = getMatch(policyString, "environment");
                     appData.profiles = [];
                     for (var i = 0; i < profiles.length; i++) {
                         var p = {};
                         p.id = i + 1;
                         p.name = profiles[i];
+                        appData.profiles.push(p);
+                    }
+
+                    // the following code is a workaround to add fake environments
+                    // it has to be removed when environments will work
+                    if (appData.profiles.length == 0) {
+                        var p = {};
+                        p.id = 1;
+                        p.name = "Misc.";
                         appData.profiles.push(p);
                     }
 
@@ -53,6 +64,38 @@ webinos.discovery.findServices(new ServiceType('http://webinos.org/core/policyma
                     }
 
                     var id = 1;
+                    appData.permissions = [];
+
+                    // code to populate environments task
+                    // at the moment environments are not yet supported by the
+                    // policy manager, so we use the fake environment "Misc."
+                    for (var i = 0; i < appData.people.length; i++) {
+                        for (var j = 0; j < appData.applications.length; j ++) {
+                            for (var k = 0; k < appData.services.length; k ++) {
+                                // TODO add environments loop
+                                var p = {};
+                                p.id = id;
+                                id++;
+                                p.personId = appData.people[i].id;
+                                p.appId = appData.applications[j].id;
+                                p.serviceId = appData.services[k].id;
+                                p.name = appData.services[k].name;
+                                p.profileId = 1; // adding the fake "Misc." environment
+                                var request = {};
+                                request.subjectInfo = {};
+                                request.subjectInfo.userId = appData.people[i].name;
+                                request.widgetInfo = {};
+                                request.widgetInfo.id = appData.applications[j].name;
+                                request.resourceInfo = {};
+                                request.resourceInfo.apiFeature = appData.services[k].uri;
+                                appData.permissions.push(p);
+                                syncPermissions(+1);
+                                envEnforceRequest(policyeditor, ps, appData.permissions.length, request);
+                            }
+                        }
+                    }
+
+                    id = 1;
                     appData.appPermissions = [];
 
                     for (var i = 0; i < appData.people.length; i++) {
@@ -82,6 +125,36 @@ webinos.discovery.findServices(new ServiceType('http://webinos.org/core/policyma
         });
     }
 });
+
+var permissionsDone = function(callback) {
+        var counter = 0;
+        return function (incr) {
+                if (0 == (counter += incr))
+                        callback();
+        };
+};
+
+var syncPermissions = permissionsDone(function() { drawPlaces(); });
+
+function envEnforceRequest(pe, ps, i, req) {
+    pe.testPolicy(ps, req, function(res) {
+        // received data: 0 permit, 1 deny, 2 prompt_oneshot, 3 prompt_session, 4 prompt_blanket, 5 undetermined, 6 inapplicable
+        // stored data: 1 allow, 0 prompt, -1 deny
+
+        if (res == 0) {
+            appData.permissions[i-1].perm = 1;
+        }
+        if (res == 1 || res == 5 || res == 6) {
+            appData.permissions[i-1].perm = -1;
+        }
+        if (res > 1 && res < 5) {
+            appData.permissions[i-1].perm = 0;
+        }
+        //console.log(JSON.stringify(req));
+        //console.log(JSON.stringify(appData.permissions[i-1]));
+        syncPermissions(-1);
+    }, null);
+}
 
 var appPermissionsDone = function(callback) {
         var counter = 0;
