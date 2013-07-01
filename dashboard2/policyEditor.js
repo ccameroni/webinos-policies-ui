@@ -304,6 +304,8 @@ var drawStoreList = function() {
 	drawPermissionButtons('unk-loc-per-con', [{n:"Allow",c:"allow"}, {n:"Allow once",c:"prompt"}, {n:"Deny",c:"deny"}], 1);
 }();
 
+var listOptions, peopleList;
+
 var drawPeopleList = function() {
 	var peopleListContainer = document.getElementById('people-list'),
 		html = '',
@@ -334,17 +336,15 @@ var drawPeopleList = function() {
 	}
 
 	peopleListContainer.innerHTML = html;
+
+    // list.js
+        listOptions = {
+        valueNames: ['name', 'email', 'lastused-timestamp']
+    };
+
+        peopleList = new List('peoplePolicies', listOptions);
+    // end of list.js
 };
-
-
-// list.js
-var listOptions = {
-    valueNames: ['name', 'email', 'lastused-timestamp']
-};
-
-var peopleList = new List('peoplePolicies', listOptions);
-// end of list.js
-
 
 function drawPlaces() {
 	var profiles = appData.profiles || [],
