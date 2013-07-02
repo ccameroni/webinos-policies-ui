@@ -4,18 +4,18 @@
 
 /* QUICK SETTINGS */
 
-#quickSettings-switches, #quickSettings-status {
+#localQuickSettings, #remoteQuickSettings {
 	position: relative;
 }
 
-.quickSettings-switches-title, .quickSettings-status-title {
+.localQuickSettings-title, .remoteQuickSettings-title {
 	color: #0084FF;
 	width: 100%;
 	border-bottom: 4px solid #EEE;
 	margin-bottom: 10px;
 	padding-bottom: 10px;
 }
-#quickSettings-status {
+#remoteQuickSettings {
 	position: relative;
 	margin-top: 2em;
 }
@@ -478,21 +478,21 @@ color: #bbb;
 
 	/* QUICK SETTINGS */
 
-	#quickSettings-switches, #quickSettings-status,
-	.quickSettings-switches-title, .quickSettings-status-title {
+	#localQuickSettings, #remoteQuickSettings,
+	.localQuickSettings-title, .remoteQuickSettings-title {
 		display: inline-block;
 		vertical-align: top;
 	}
-	#quickSettings-switches {
-		width: 50%;
+	#localQuickSettings {
+		width: 44%;
 		position: relative;
 	}
-	#quickSettings-status {
-		width: 30%;
-		margin-left: 9%;
-		padding-left: 9%;
+	#remoteQuickSettings {
+		width: 44%;
+		margin-left: 5%;
+		padding-left: 5%;
 	}
-	#quickSettings-switches, #quickSettings-status {
+	#localQuickSettings, #remoteQuickSettings {
 		margin-top: 0;
 	}
 

@@ -1,6 +1,8 @@
 var appData = {};
 var policyeditor;
 
+var discovery = "http://webinos.org/api/discovery";
+
 
 webinos.discovery.findServices(new ServiceType('http://webinos.org/core/policymanagement'), {
     onFound: function(service) {
@@ -116,8 +118,50 @@ webinos.discovery.findServices(new ServiceType('http://webinos.org/core/policyma
                                 request.resourceInfo.apiFeature = appData.services[k].uri;
                                 appData.appPermissions.push(p);
                                 syncAppPermissions(+1);
-                                enforceRequest(policyeditor, ps, appData.appPermissions.length, request);
+                                appEnforceRequest(policyeditor, ps, appData.appPermissions.length, request);
                             }
+                        }
+                    }
+
+                    // At the moment we don't know the user-id of the zone
+                    // owner. As a workaround we suppose to have a policy with
+                    // id "local-discoverability".
+                    // The user-id in the target of this policy is the one of
+                    // the zone owner.
+                    var localDiscoverabilityPolicy = ps.getPolicy("local-discoverability");
+                    if (localDiscoverabilityPolicy) {
+                        var owner = getMatch(JSON.stringify(localDiscoverabilityPolicy.toJSONObject()), "user-id");
+                        if (owner[0]) {
+                            appData.localQuickSettings = [];
+                            for (var i = 0; i < appData.services.length; i++) {
+                                if (appData.services[i].uri !== discovery) {
+                                    var p = {};
+                                    p.name = appData.services[i].name;
+                                    var request = {};
+                                    request.subjectInfo = {};
+                                    request.subjectInfo.userId = owner[0];
+                                    request.resourceInfo = {};
+                                    request.resourceInfo.apiFeature = discovery;
+                                    request.resourceInfo.paramFeature = appData.services[i].uri;
+                                    appData.localQuickSettings.push(p);
+                                    syncLocalQuickSettings(+1);
+                                    localQuickSettingsEnforceRequest(policyeditor, ps, appData.localQuickSettings.length, request);
+                                }
+                            }
+                        }
+                    }
+                    appData.remoteQuickSettings = [];
+                    for (var i = 0; i < appData.services.length; i++) {
+                        if (appData.services[i].uri !== discovery) {
+                            var p = {};
+                            p.name = appData.services[i].name;
+                            var request = {};
+                            request.resourceInfo = {};
+                            request.resourceInfo.apiFeature = discovery;
+                            request.resourceInfo.paramFeature = appData.services[i].uri;
+                            appData.remoteQuickSettings.push(p);
+                            syncRemoteQuickSettings(+1);
+                            remoteQuickSettingsEnforceRequest(policyeditor, ps, appData.remoteQuickSettings.length, request);
                         }
                     }
                 }, null);
@@ -166,7 +210,7 @@ var appPermissionsDone = function(callback) {
 
 var syncAppPermissions = appPermissionsDone(function() { drawApps(); });
 
-function enforceRequest(pe, ps, i, req) {
+function appEnforceRequest(pe, ps, i, req) {
     pe.testPolicy(ps, req, function(res) {
         // received data: 0 permit, 1 deny, 2 prompt_oneshot, 3 prompt_session, 4 prompt_blanket, 5 undetermined, 6 inapplicable
         // stored data: 1 allow, 0 prompt, -1 deny
@@ -183,6 +227,54 @@ function enforceRequest(pe, ps, i, req) {
         //console.log(JSON.stringify(req));
         //console.log(JSON.stringify(appData.appPermissions[i-1]));
         syncAppPermissions(-1);
+    }, null);
+}
+
+var localQuickSettingsDone = function(callback) {
+        var counter = 0;
+        return function (incr) {
+                if (0 == (counter += incr))
+                        callback();
+        };
+};
+
+var syncLocalQuickSettings = localQuickSettingsDone(function() { drawLocalQuickSettings(); });
+
+function localQuickSettingsEnforceRequest(pe, ps, i, req) {
+    pe.testPolicy(ps, req, function(res) {
+        // received data: 0 permit, 1 deny, 2 prompt_oneshot, 3 prompt_session, 4 prompt_blanket, 5 undetermined, 6 inapplicable
+
+        if (res == 0) {
+            appData.localQuickSettings[i-1].enabled = true;
+        }
+        else {
+            appData.localQuickSettings[i-1].enabled = false;
+        }
+        syncLocalQuickSettings(-1);
+    }, null);
+}
+
+var remoteQuickSettingsDone = function(callback) {
+        var counter = 0;
+        return function (incr) {
+                if (0 == (counter += incr))
+                        callback();
+        };
+};
+
+var syncRemoteQuickSettings = localQuickSettingsDone(function() { drawRemoteQuickSettings(); });
+
+function remoteQuickSettingsEnforceRequest(pe, ps, i, req) {
+    pe.testPolicy(ps, req, function(res) {
+        // received data: 0 permit, 1 deny, 2 prompt_oneshot, 3 prompt_session, 4 prompt_blanket, 5 undetermined, 6 inapplicable
+
+        if (res == 0) {
+            appData.remoteQuickSettings[i-1].enabled = true;
+        }
+        else {
+            appData.remoteQuickSettings[i-1].enabled = false;
+        }
+        syncRemoteQuickSettings(-1);
     }, null);
 }
 
@@ -298,26 +390,24 @@ function dragDropInitColumns() {
 }*/
 
 
-function drawQuickSettings() {
-	var quickSettingsSwitchesContainer = document.getElementById('quickSettings-switches-content'),
-		quickSettingsStatusContainer = document.getElementById('quickSettings-status-content'),
+function drawLocalQuickSettings() {
+	var localQuickSettingsContainer = document.getElementById('localQuickSettings-content'),
 		html = '',
-		quickSettings = appData.quickSettings || [],
-		quickStatus = appData.quickStatus || [],
+		localQuickSettings = appData.localQuickSettings || [],
 		i = 0,
-		j = quickSettings.length,
+		j = localQuickSettings.length,
 		checked = '',
 		active = '';
 
 	for(i; i<j; i++) {
-		if(quickSettings[i].enabled) {
+		if(localQuickSettings[i].enabled) {
 			checked = ' checked';
 		} else {
 			checked = '';
 		}
 
 		html += '' +
-			'<label id="qsnl'+i+'" class="onoffswitch-namelabel" for="myonoffswitch'+i+'">'+quickSettings[i].name+'</label>' +
+			'<label id="qsnl'+i+'" class="onoffswitch-namelabel" for="myonoffswitch'+i+'">'+localQuickSettings[i].name+'</label>' +
 			'<div class="onoffswitch">' +
 				'<input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="myonoffswitch'+i+'"'+checked+'>' +
 				'<label class="onoffswitch-label" for="myonoffswitch'+i+'">' +
@@ -327,8 +417,8 @@ function drawQuickSettings() {
 			'</div>';
 	}
 
-	quickSettingsSwitchesContainer.innerHTML = html;
-
+	localQuickSettingsContainer.innerHTML = html;
+/*
 	//reset and continue
 	html = '';
 	i = 0;
@@ -346,7 +436,37 @@ function drawQuickSettings() {
 			'<div class="qstatus-name">'+quickStatus[i].name+'</div><div class="qstatus-icon'+active+'" id="status-icon'+i+'"></div>';
 	}
 
-	quickSettingsStatusContainer.innerHTML = html;
+	quickSettingsStatusContainer.innerHTML = html;*/
+};
+
+function drawRemoteQuickSettings() {
+	var remoteQuickSettingsContainer = document.getElementById('remoteQuickSettings-content'),
+		html = '',
+		remoteQuickSettings = appData.remoteQuickSettings || [],
+		i = 0,
+		j = remoteQuickSettings.length,
+		checked = '',
+		active = '';
+
+	for(i; i<j; i++) {
+		if(remoteQuickSettings[i].enabled) {
+			checked = ' checked';
+		} else {
+			checked = '';
+		}
+
+		html += '' +
+			'<label id="qsnl'+i+'" class="onoffswitch-namelabel" for="myonoffswitch'+i+'">'+remoteQuickSettings[i].name+'</label>' +
+			'<div class="onoffswitch">' +
+				'<input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="myonoffswitch'+i+'"'+checked+'>' +
+				'<label class="onoffswitch-label" for="myonoffswitch'+i+'">' +
+					'<div class="onoffswitch-inner"></div>' +
+					'<div class="onoffswitch-switch"></div>' +
+				'</label>' +
+			'</div>';
+	}
+
+	remoteQuickSettingsContainer.innerHTML = html;
 };
 
 
